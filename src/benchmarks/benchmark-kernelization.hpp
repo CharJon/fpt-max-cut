@@ -348,7 +348,7 @@ public:
                             if (lastPathSep != string::npos) {
                                 input_file_name = input_file_name.substr(lastPathSep + 1);
                             }
-                            std::string path = input.getCmdOption("-output-graphs-dir") + input_file_name;
+                            std::string path = input.getCmdOption("-output-graphs-dir") + input_file_name + std::to_string(mixingid);
                             G.PrintGraph(path, true);
                             kernelized.PrintGraph(path + "-kernelized", true);
                         }

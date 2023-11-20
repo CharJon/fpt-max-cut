@@ -42,7 +42,7 @@ public:
             if (reset_timestamps_each_time) {
                 kernelized.ResetTimestamps(); // HEAVY SLOWDOWN!
             }
-            
+
             bool chg_happened = false;
             for (int i = 0; i < (int)provided_kernelization_order.size() /* && !chg_happened**/; ++i) { // some basics tests have shown that performance remains same even if the !chg_happened part is removed. This helps detect inclusions!
                 cout << ("Trying the " + kRuleNames.at(provided_kernelization_order.at(i)) + " kernelization rule. Timestamps: " + to_string(!reset_timestamps_each_time)) << endl;
@@ -58,7 +58,7 @@ public:
 
             cout << ("|V(kernel)| = " + to_string(kernelized.GetRealNumNodes()) + "  |E(kernel)| = " + to_string(kernelized.GetRealNumEdges()) + " , cut_change = " + to_string(kernelized.GetInflictedCutChangeToKernelized())) << endl;
 
-            if (!chg_happened) break; 
+            if (!chg_happened) break;
             else tot_chg_happened = true;
         }
 
@@ -99,7 +99,7 @@ public:
                     LogTime(times_all_components, t0);
                     if (KernelizeExec(kernelized, selected_kernelization_order, times_all_components, false))
                         is_all_finished = false, total_finish = false;
-                    
+
                     if (use_fast_kernelization)
                         break;
                 }
@@ -116,7 +116,7 @@ public:
                     is_all_finished = true;
                     if (KernelizeExec(kernelized, {RuleIds::Rule8Signed}, times_all_components, false))
                         is_all_finished = false, total_finish = false;
-                    
+
                     if (use_fast_kernelization)
                         break;
                 }
@@ -134,7 +134,7 @@ public:
                     LogTime(times_all_components, t0);
                     if (KernelizeExec(kernelized, {RuleIds::RuleS3Weighted, RuleIds::RuleS2Weighted, RuleIds::RuleWeightedTriag}, times_all_components, false))
                         is_all_finished = false, total_finish = false;
-                    
+
                     if (use_fast_kernelization)
                         break;
                 }
@@ -196,8 +196,8 @@ public:
         mtx_mixingid_gen.unlock();
         int mixingid = GetMixingId(main_graph);
         cout << "MIXING ID: " << mixingid << " = " << main_graph.GetGraphNaming() << endl;
-        
-        
+
+
 
         int num_iterations = 1;
         if (input.cmdOptionExists("-iterations")) {
@@ -235,7 +235,7 @@ public:
 
         int number_of_threads = 1;
         if (input.cmdOptionExists("-number-of-iter-threads")) {
-            number_of_threads = stoi(input.getCmdOption("-number-of-iter-threads"));   
+            number_of_threads = stoi(input.getCmdOption("-number-of-iter-threads"));
         }
 
         int iteration_offset = 0;
@@ -257,7 +257,7 @@ public:
                     MaxCutGraph G = main_graph;
                     MaxCutGraph kernelized = G;
 
-                    
+
                     unordered_map<int, double> times_all_components;
                     auto t0_total = std::chrono::high_resolution_clock::now();
                     Kernelize(kernelized, times_all_components);
@@ -269,7 +269,7 @@ public:
                     // Compute solver results.
                     SolverEvaluation eval;
                     eval.Evaluate(mixingid, input, kernelization_time, G, kernelized);
-                    
+
 
                     // Some variables.
                     double EE = G.GetEdwardsErdosBound();
@@ -293,7 +293,7 @@ public:
                         cout << endl;
 
 
-                    
+
                         cout << setw(20) << "RULE" << setw(20) << "|USED|" << setw(20) << "|CHECKS|" << setw(20) << "|TIME|" << setw(20) << "|TIME|/|CHECKS|" << endl;
                         for (auto rule : kAllRuleIds) {
                             double used_time = times_all_components[static_cast<int>(rule)];
@@ -304,7 +304,7 @@ public:
                             tot_rule_checks_cnt[rule] += check_cnt;
                             total_times[static_cast<int>(rule)] += used_time;
 
-                            
+
                             //- last_times_all[static_cast<int>(rule)];
                             cout << setw(20) << kRuleNames.at(rule) << setw(20) << used_cnt << setw(20) << check_cnt << setw(20) << used_time << setw(20) << (used_time/check_cnt) << endl;
                         }
@@ -313,7 +313,7 @@ public:
 
                         double k_change = kernelized.GetInflictedCutChangeToKernelized();
                         custom_assert(eval.biqmac_cut_size == eval.biqmac_cut_size_k || eval.biqmac_cut_size == -1 || eval.biqmac_cut_size_k == -1);
-                        
+
                         OutputKernelization(input, main_graph.GetGraphNaming(),
                                             mixingid, iteration + iteration_offset,
                                             G.GetRealNumNodes(), G.GetRealNumEdges(),
@@ -323,12 +323,12 @@ public:
                                             eval.localsolver_cut_size, eval.localsolver_cut_size_k, eval.localsolver_rate, eval.localsolver_rate_sddiff,
                                             eval.local_search_cut_size, eval.local_search_cut_size_k, eval.local_search_rate, eval.local_search_rate_sddiff,
 
-                                            eval.mqlib_time, eval.mqlib_time_k, 
-                                            eval.localsolver_time, eval.localsolver_time_k, 
-                                            eval.biqmac_time, eval.biqmac_time_k, 
+                                            eval.mqlib_time, eval.mqlib_time_k,
+                                            eval.localsolver_time, eval.localsolver_time_k,
+                                            eval.biqmac_time, eval.biqmac_time_k,
 
                                             EE, EE_k, eval.MAXCUT_best_size, kernelization_time);
-                        
+
                         accum.push_back({(double)mixingid, (double)iteration + iteration_offset,
                                             (double)G.GetRealNumNodes(), (double)G.GetRealNumEdges(),
                                             (double)kernelized.GetRealNumNodes(), (double)kernelized.GetRealNumEdges(),
@@ -336,14 +336,21 @@ public:
                                             (double)eval.mqlib_cut_size, (double)eval.mqlib_cut_size_k, eval.mqlib_rate, eval.mqlib_rate_sddiff,
                                             eval.localsolver_cut_size, eval.localsolver_cut_size_k, eval.localsolver_rate, eval.localsolver_rate_sddiff,
                                             eval.local_search_cut_size, eval.local_search_cut_size_k, eval.local_search_rate, eval.local_search_rate_sddiff,
-                                            eval.mqlib_time, eval.mqlib_time_k, 
-                                            eval.localsolver_time, eval.localsolver_time_k, 
-                                            eval.biqmac_time, eval.biqmac_time_k, 
+                                            eval.mqlib_time, eval.mqlib_time_k,
+                                            eval.localsolver_time, eval.localsolver_time_k,
+                                            eval.biqmac_time, eval.biqmac_time_k,
                                             EE, EE_k, (double)eval.MAXCUT_best_size, kernelization_time});
-                        
+
                         if (iteration + iteration_offset == 1 && input.cmdOptionExists("-output-graphs-dir")) {
-                            G.PrintGraph(input.getCmdOption("-output-graphs-dir") + to_string(mixingid), true);
-                            kernelized.PrintGraph(input.getCmdOption("-output-graphs-dir") + to_string(mixingid) + "-kernelized", true);
+                            auto input_file_name = input.getCmdOption("-f");
+                            // extract file name from input file name
+                            auto lastPathSep = input_file_name.find_last_of('/');
+                            if (lastPathSep != string::npos) {
+                                input_file_name = input_file_name.substr(lastPathSep + 1);
+                            }
+                            std::string path = input.getCmdOption("-output-graphs-dir") + input_file_name;
+                            G.PrintGraph(path, true);
+                            kernelized.PrintGraph(path + "-kernelized", true);
                         }
                     }
                     mtx_aggregation.unlock();
@@ -353,7 +360,7 @@ public:
         std::for_each(threads.begin(), threads.end(), [](std::thread& x){x.join();});
 
         custom_assert(accum.size() > 0);
-    
+
         vector<double> avg;
         avg.push_back(mixingid);
         avg.push_back(-1);
@@ -402,14 +409,14 @@ public:
 
     const vector<RuleIds> kernelization_order = {
           RuleIds::RuleS2, RuleIds::Rule8, RuleIds::RuleS5, RuleIds::RuleS3
-          
+
           /*
                     ON REMOVED RULES(!!!!):
                     RuleIds::RuleS2, RuleIds::Rule8, DUE TO INCLUSION IN "MEGA"
                          EXCLUDED DUE TO INCLUSION:       RuleIds::Rule9 (S2), RuleIds::Rule9X (S2), RuleIds::Rule10AST (S5)
                          EXCLUDED (see below reasons):    RuleIds::Rule10
                          VERY LITTLE USAGE: RuleIds::RuleS4   (argue in thesis though why you left it out (if you do it))
-                         
+
                          */
     };
 

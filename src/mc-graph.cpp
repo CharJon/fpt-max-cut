@@ -2936,20 +2936,20 @@ pair<EdgeWeight, vector<int>> MaxCutGraph::ComputeLocalSearchCut(const vector<in
 // https://github.com/MQLib/MQLib
 pair<EdgeWeight, vector<int>> MaxCutGraph::ComputeMaxCutWithMQLib(const double max_exec_time, Burer2002Callback* callback) const {
     if (max_exec_time <= 0) return make_pair(0, vector<int>());
-    std::vector<Instance::InstanceTuple> edgeList;
+    std::vector<mqlib::Instance::InstanceTuple> edgeList;
     auto edges = GetAllExistingEdgesWithWeightsScaled(1);
     int real_num_nodes = CompressEdgeList(edges);
 
     for (auto e : edges)
-        edgeList.push_back(Instance::InstanceTuple(std::make_pair(get<0>(e), get<1>(e)), get<2>(e)));
+        edgeList.push_back(mqlib::Instance::InstanceTuple(std::make_pair(get<0>(e), get<1>(e)), get<2>(e)));
 
     if (edgeList.size() == 0 || real_num_nodes == 0) {
         return make_pair(0, vector<int>());
     }
 
-    MaxCutInstance mi(edgeList, real_num_nodes);
-    Burer2002 heur(mi, max_exec_time, false, callback);
-    const MaxCutSimpleSolution& mcSol = heur.get_best_solution();
+    mqlib::MaxCutInstance mi(edgeList, real_num_nodes);
+    mqlib::Burer2002 heur(mi, max_exec_time, false, callback);
+    const mqlib::MaxCutSimpleSolution& mcSol = heur.get_best_solution();
 
     return make_pair(!is_scaled ? mcSol.get_weight() : mcSol.get_weight() * SCALED_FROM, mcSol.get_assignments());
 }

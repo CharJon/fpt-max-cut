@@ -45,7 +45,7 @@ extern const vector<RuleIds> kAllRuleIds;
 bool ShouldExitEarly(InputParser *input, const int num_nodes, const int num_edges);
 bool ShouldExitEarly(InputParser *input, const MaxCutGraph *G);
 
-class Burer2002Callback : public MaxCutCallback {
+class Burer2002Callback : public mqlib::MaxCutCallback {
 public:
     Burer2002Callback(double total_allowed_time_, InputParser *input_parser_, const string graph_name_, int mixingid_, int num_nodes_, int num_edges_, double added_preprocess_time_, double cutadd_, string sfxout_) :
                 total_allowed_time(total_allowed_time_),
@@ -62,7 +62,7 @@ public:
                 added_preprocess_time = 1e9;
         }
 
-    bool Report(const MaxCutSimpleSolution& sol, bool /* newBest */, double runtime) {
+    bool Report(const mqlib::MaxCutSimpleSolution& sol, bool /* newBest */, double runtime) {
         runtime += added_preprocess_time;
         OutputLiveMaxcut(*input_parser, graph_name, mixingid, num_nodes, num_edges, runtime, sol.get_weight() + cutadd, sfxout);
 
@@ -77,7 +77,7 @@ public:
         return true;
     }
 
-    bool Report(const MaxCutSimpleSolution& sol, bool newBest, double runtime, int /* iter */) {
+    bool Report(const mqlib::MaxCutSimpleSolution& sol, bool newBest, double runtime, int /* iter */) {
         return Report(sol, newBest, runtime);
     }
 

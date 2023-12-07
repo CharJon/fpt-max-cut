@@ -18,8 +18,8 @@
     #include "maxcut-localsolver.hpp"
 #endif
 
-#include <heuristics/qubo/glover1998a.h>
-#include <heuristics/maxcut/burer2002.h>
+#include <mqlib/heuristics/qubo/glover1998a.h>
+#include <mqlib/heuristics/maxcut/burer2002.h>
 using namespace std;
 
 typedef long long EdgeWeight;

@@ -10,8 +10,8 @@
 #include <iomanip>
 
 #include "mc-graph.hpp"
-#include <heuristics/qubo/glover1998a.h>
-#include <heuristics/maxcut/burer2002.h>
+#include <mqlib/heuristics/qubo/glover1998a.h>
+#include <mqlib/heuristics/maxcut/burer2002.h>
 
 
 

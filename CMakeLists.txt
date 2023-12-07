@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
+set(CMAKE_CXX_STANDARD 17)
 
 project(maxcut-kernelization)
 
@@ -33,10 +34,12 @@ message("")
 #### BASIC SETTINGS ############################################################
 
 add_subdirectory(./test-generators/KaGen/)
-include_directories(. ${CMAKE_CURRENT_SOURCE_DIR}/solvers/MQLib/include)
+#include_directories(. ${CMAKE_CURRENT_SOURCE_DIR}/solvers/MQLib/include)
 include_directories(. /software/localsolver/localsolver_8_0/include)
 include_directories(. /opt/localsolver_7_5/include)
 include_directories(. /opt/localsolver_8_5/include)
+
+add_subdirectory(./solvers/MQLib)
 
 #set (CMAKE_CXX_COMPILER /usr/bin/g++-7)
 set(CMAKE_CXX_STANDARD 14)
@@ -57,16 +60,14 @@ list(APPEND ALL_CPP_FILES
         "src/output-filter.cpp"
 )
 
-find_library(MQLIB NAMES "MQLib.a" PATHS ./solvers/MQLib/bin/)
-
 if (${LOCALSOLVER_ENABLED})
     find_library(LOCALSOLVER localsolver PATHS /software/localsolver/localsolver_8_0/bin /opt/localsolver_7_5/bin /opt/localsolver_8_5/bin ${LOCALSOLVER_BIN_PATH})
 endif ()
 
-set(TARGET_LIBS Threads::Threads -lstdc++fs ${MQLIB} generators)
+set(TARGET_LIBS Threads::Threads -lstdc++fs mqlib generators)
 
 if (${LOCALSOLVER_ENABLED})
-    set(TARGET_LIBS Threads::Threads -lstdc++fs ${LOCALSOLVER} ${MQLIB} generators)
+    set(TARGET_LIBS Threads::Threads -lstdc++fs ${LOCALSOLVER} mqlib generators)
 endif ()
 
 

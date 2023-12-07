@@ -1,16 +1,54 @@
-*/build/
+# Project specific
 build/
-exercise1/hash/build/
-exercise1/pq/build/
-.vs/
-.vscode/
-solvers/localsolver/maxcut
+builds/
+cmake-build-*
+.idea
 
-output/**/*
-!output/*.sh
-!output/*.r
-**/*.o
+# benchmark / simexpal
+benchmark/aux
+benchmark/builds
+benchmark/output
+benchmark/status.cache
+benchmark/validation.cache
+benchmark/local
 
-build-config.json
+# logs
+logs/*
 
-**/*config.generated.sh
+# local data
+data/local/*
+
+# Python & jupyter
+.ipynb_checkpoints
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out

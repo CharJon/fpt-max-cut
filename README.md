@@ -1,24 +1,16 @@
 <h1>Max-Cut Kernelization Benchmark Suite</h1>
 
 <h2>How to use</h2>
-<h3>Prerequisites</h2>
-<pre><code>
-  sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-  sudo apt-get -qq update
-  sudo apt-get install gcc-7 g++-7 libopenmpi-dev libcgal-dev libcgal-qt5-dev libsparsehash-dev 
- </code></pre>
- 
  
 <h3>Setup</h3>
 In the main directory call ./build.sh or do the following manually:
-<pre><code>git submodule update --init --recursive
-cd solvers/MQLIb
-make
-cd ../../
+<pre><code>
+git submodule update --init --recursive
 mkdir build
 cd build
-cmake ../
-make benchmark</code></pre>
+cmake ..
+make benchmark
+</code></pre>
 
 <h2>Solvers</h2>
 Per default, localsearch (simple implementation by us) and mqlib are run. These are included with our project. This enables our project to perform a comparison between the non-kernelized and kernelized graph's maximum cut computation.

@@ -3,6 +3,4 @@
 	url = https://github.com/KarlsruheGraphGeneration/KaGen
 [submodule "MQLib"]
 	path = solvers/MQLib
-	url = git@gitlab.informatik.uni-bonn.de:mcbq/mqlib.git
-[submodule "solvers/MQLib"]
 	url = https://github.com/CharJon/MQLib.git

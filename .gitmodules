@@ -1,6 +1,6 @@
-[submodule "solvers/MQLib"]
-	path = solvers/MQLib
-	url = https://github.com/MQLib/MQLib
 [submodule "test-generators/KaGen"]
 	path = test-generators/KaGen
 	url = https://github.com/KarlsruheGraphGeneration/KaGen
+[submodule "MQLib"]
+	path = solvers/MQLib
+	url = git@gitlab.informatik.uni-bonn.de:mcbq/mqlib.git

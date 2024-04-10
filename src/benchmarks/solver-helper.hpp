@@ -127,7 +127,7 @@ struct SolverEvaluation {
             cout << "Testing the solvers was skipped due to insufficient time or no kernelization done. Provided: " << total_time_seconds << "; spent on kernelization: " << already_spent_time_on_kernelization_seconds_sec << " [seconds]." << endl;
             cout << "Kernelization: " << -k_change << endl;
             cout << "Not skipped actually due to new change." << endl;
-            //return;
+            return;
         }
 
         Burer2002Callback mqlib_cb  (total_time_seconds, &input, G.GetGraphNaming(), mixingid, G.GetRealNumNodes(), G.GetRealNumEdges(), 0, 0, "mqlib");

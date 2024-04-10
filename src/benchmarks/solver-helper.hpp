@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <thread>
+
 using namespace std;
 
 enum Solvers {
@@ -38,7 +39,7 @@ double ParseBiqmacOutput_MxcCutSize(const string bm_output) {
     stringstream in(bm_output);
     string strline;
     const string subkey = "cut value: ";
-    while (getline(in,strline)) {
+    while (getline(in, strline)) {
         if (strline.substr(0, subkey.size()) == subkey) {
             return stod(strline.substr(subkey.size()));
         }
@@ -61,7 +62,8 @@ struct SolverEvaluation {
     EdgeWeight MAXCUT_best_size;
     EdgeWeight tmp_MAXCUT_best_size;
 
-    void Evaluate(const int mixingid, InputParser &input, double already_spent_time_on_kernelization_seconds_ms, const MaxCutGraph& G, const MaxCutGraph& kernelized, int use_solver_mask = Solvers::All) {
+    void Evaluate(const int mixingid, InputParser &input, double already_spent_time_on_kernelization_seconds_ms,
+                  const MaxCutGraph &G, const MaxCutGraph &kernelized, int use_solver_mask = Solvers::All) {
         const double k_change = kernelized.GetInflictedCutChangeToKernelized();
 
         local_search_cut_size = -1, local_search_cut_size_k = -1, local_search_rate = 0, local_search_rate_sddiff = 0;
@@ -70,7 +72,7 @@ struct SolverEvaluation {
         local_search_cut_size_best = -1, mqlib_cut_size_best = -1, localsolver_cut_size_best = -1;
 
         biqmac_cut_size = -1, biqmac_cut_size_k = -1;
-        
+
         biqmac_time = -1, biqmac_time_k = -1;
         localsolver_time = -1, localsolver_time_k = -1;
         mqlib_time = -1, mqlib_time_k = -1;
@@ -93,7 +95,9 @@ struct SolverEvaluation {
             total_time_seconds = rand() % total_time_seconds;
         }
 
-        cout << ("Allocated total runtime for solvers (+kernelization): " + to_string(total_time_seconds) + " of which kernelization has used: " + to_string(already_spent_time_on_kernelization_seconds_sec) + " [seconds].") << endl;
+        cout << ("Allocated total runtime for solvers (+kernelization): " + to_string(total_time_seconds) +
+                 " of which kernelization has used: " + to_string(already_spent_time_on_kernelization_seconds_sec) +
+                 " [seconds].") << endl;
 
         int locsearch_iterations = 1;
         if (input.cmdOptionExists("-locsearch-iterations")) {
@@ -114,49 +118,67 @@ struct SolverEvaluation {
             should_exit_kernelized = true;
         }
 
-        if (use_solver_mask & Solvers::Localsearch) {
+        if (false && use_solver_mask & Solvers::Localsearch) {
             vector<int> tmp_def_param_trash;
-            std::tie(local_search_cut_size, local_search_cut_size_k, local_search_rate, local_search_rate_sddiff, local_search_cut_size_best)
-                        = ComputeAverageAndDeviation(TakeFirstFromPairFunction(std::bind(&MaxCutGraph::ComputeLocalSearchCut, &G, tmp_def_param_trash)),
-                                                    TakeFirstFromPairFunction(std::bind(&MaxCutGraph::ComputeLocalSearchCut, &kernelized, tmp_def_param_trash), -k_change),
-                                                    locsearch_iterations);
+
+            std::tie(local_search_cut_size, local_search_cut_size_k, local_search_rate, local_search_rate_sddiff,
+                     local_search_cut_size_best)
+                    = ComputeAverageAndDeviation(
+                    TakeFirstFromPairFunction(std::bind(&MaxCutGraph::ComputeLocalSearchCut, &G, tmp_def_param_trash)),
+                    TakeFirstFromPairFunction(
+                            std::bind(&MaxCutGraph::ComputeLocalSearchCut, &kernelized, tmp_def_param_trash),
+                            -k_change),
+                    locsearch_iterations);
         }
+
+        std::cout << "Total time seconds : " << total_time_seconds << std::endl;
+        std::cout << "Already spent time on kernelization: " << already_spent_time_on_kernelization_seconds_sec
+                  << std::endl;
 
         if (total_time_seconds > already_spent_time_on_kernelization_seconds_sec && fabs(k_change) > 1e-9) {
         } else {
-            cout << "Testing the solvers was skipped due to insufficient time or no kernelization done. Provided: " << total_time_seconds << "; spent on kernelization: " << already_spent_time_on_kernelization_seconds_sec << " [seconds]." << endl;
+            cout << "Testing the solvers was skipped due to insufficient time or no kernelization done. Provided: "
+                 << total_time_seconds << "; spent on kernelization: "
+                 << already_spent_time_on_kernelization_seconds_sec << " [seconds]." << endl;
             cout << "Kernelization: " << -k_change << endl;
             return;
         }
 
-        Burer2002Callback mqlib_cb  (total_time_seconds, &input, G.GetGraphNaming(), mixingid, G.GetRealNumNodes(), G.GetRealNumEdges(), 0, 0, "mqlib");
-        Burer2002Callback mqlib_cb_k(total_time_seconds, &input, kernelized.GetGraphNaming(), mixingid, kernelized.GetRealNumNodes(), kernelized.GetRealNumEdges(), already_spent_time_on_kernelization_seconds_sec, -k_change, "mqlib-kernelized");
-        auto F_mqlib   = TakeFirstFromPairFunction(std::bind(&MaxCutGraph::ComputeMaxCutWithMQLib, &G, total_time_seconds, &mqlib_cb));
-        auto F_mqlib_k = TakeFirstFromPairFunction(std::bind(&MaxCutGraph::ComputeMaxCutWithMQLib, &kernelized, total_time_seconds - already_spent_time_on_kernelization_seconds_sec, &mqlib_cb_k), -k_change);
+        Burer2002Callback mqlib_cb(total_time_seconds, &input, G.GetGraphNaming(), mixingid, G.GetRealNumNodes(),
+                                   G.GetRealNumEdges(), 0, 0, "mqlib");
+        Burer2002Callback mqlib_cb_k(total_time_seconds, &input, kernelized.GetGraphNaming(), mixingid,
+                                     kernelized.GetRealNumNodes(), kernelized.GetRealNumEdges(),
+                                     already_spent_time_on_kernelization_seconds_sec, -k_change, "mqlib-kernelized");
+        auto F_mqlib = TakeFirstFromPairFunction(
+                std::bind(&MaxCutGraph::ComputeMaxCutWithMQLib, &G, total_time_seconds, &mqlib_cb));
+        auto F_mqlib_k = TakeFirstFromPairFunction(std::bind(&MaxCutGraph::ComputeMaxCutWithMQLib, &kernelized,
+                                                             total_time_seconds -
+                                                             already_spent_time_on_kernelization_seconds_sec,
+                                                             &mqlib_cb_k), -k_change);
 
         std::shared_ptr<std::thread> thread_mqlib, thread_mqlib_k;
         vector<double> res_mqlib, res_mqlib_k;
 
         if (!input.cmdOptionExists("-no-mqlib") && (use_solver_mask & Solvers::MqLib)) { // EVALUATE MQLIB
             OutputDebugLog("====> EVALUATE: MQLIB.");
-        
-            thread_mqlib = std::make_shared<std::thread>([&]{
+
+            thread_mqlib = std::make_shared<std::thread>([&] {
                 auto t0_total = std::chrono::high_resolution_clock::now();
                 res_mqlib.push_back(F_mqlib());
                 auto t1_total = std::chrono::high_resolution_clock::now();
-                mqlib_time   = std::chrono::duration_cast<std::chrono::microseconds> (t1_total - t0_total).count()/1000.;
+                mqlib_time = std::chrono::duration_cast<std::chrono::microseconds>(t1_total - t0_total).count() / 1000.;
             });
-            thread_mqlib_k = std::make_shared<std::thread>([&]{
+            thread_mqlib_k = std::make_shared<std::thread>([&] {
                 auto t0_total = std::chrono::high_resolution_clock::now();
                 res_mqlib_k.push_back(F_mqlib_k());
                 auto t1_total = std::chrono::high_resolution_clock::now();
-                mqlib_time_k  = std::chrono::duration_cast<std::chrono::microseconds> (t1_total - t0_total).count()/1000.;
+                mqlib_time_k =
+                        std::chrono::duration_cast<std::chrono::microseconds>(t1_total - t0_total).count() / 1000.;
                 if (mqlib_time_k >= 0) mqlib_time_k += already_spent_time_on_kernelization_seconds_ms;
             });
         }
 
 
-        
         std::shared_ptr<std::thread> thread_biqmac, thread_biqmac_k;
 #ifdef BIQMAC_EXISTS
         const string biqmac_binpath = BIQMAC_BINARY_PATH;
@@ -207,7 +229,7 @@ struct SolverEvaluation {
             }); 
         }
 #endif
-        
+
 
         std::shared_ptr<std::thread> thread_localsolver, thread_localsolver_k;
         vector<double> res_localsolver, res_localsolver_k;
@@ -244,7 +266,8 @@ struct SolverEvaluation {
 #endif
 
         if (thread_biqmac && thread_biqmac_k) {
-            thread_biqmac->join(); thread_biqmac_k->join();
+            thread_biqmac->join();
+            thread_biqmac_k->join();
 
             // No timelimit exceeded but also no cut? => CRASH happened
             if (biqmac_cut_size < 0 && biqmac_time >= 0) biqmac_time = -2; // ERROR
@@ -253,8 +276,9 @@ struct SolverEvaluation {
             cout << "BIQMAC(G):  " << biqmac_cut_size << " " << biqmac_time << endl;
             cout << "BIQMAC(Gk): " << biqmac_cut_size_k << " " << biqmac_time_k << endl;
             cout << "BIQMAC(Gk-no_k_change): " << biqmac_cut_size_k + k_change << " " << biqmac_time_k << endl;
-            
-            tmp_MAXCUT_best_size = max(SolverEvaluation::local_search_cut_size_best, SolverEvaluation::localsolver_cut_size_best);
+
+            tmp_MAXCUT_best_size = max(SolverEvaluation::local_search_cut_size_best,
+                                       SolverEvaluation::localsolver_cut_size_best);
             tmp_MAXCUT_best_size = max(tmp_MAXCUT_best_size, biqmac_cut_size);
             tmp_MAXCUT_best_size = max(tmp_MAXCUT_best_size, biqmac_cut_size_k);
 
@@ -262,17 +286,20 @@ struct SolverEvaluation {
             mqlib_cb_k.SetTerminatingCutSize(tmp_MAXCUT_best_size);
         }
 
-        for (auto entry : {thread_mqlib, thread_mqlib_k, thread_localsolver, thread_localsolver_k})
+        for (auto entry: {thread_mqlib, thread_mqlib_k, thread_localsolver, thread_localsolver_k})
             if (entry && entry->joinable())
                 entry->join();
-                
+
         if (thread_mqlib && thread_mqlib_k) {
             std::tie(mqlib_cut_size, mqlib_cut_size_k, mqlib_rate, mqlib_rate_sddiff, mqlib_cut_size_best)
-                = ComputeAverageAndDeviation(res_mqlib, res_mqlib_k);
-            
-            cout << "MQLIB(G):  " << mqlib_cut_size   << " " << mqlib_time << " (timelimit exceeded: " << mqlib_cb.HasExceededTimelimit() << ")" << endl;
-            cout << "MQLIB(Gk): " << mqlib_cut_size_k << " " << mqlib_time_k << " (timelimit exceeded: " << mqlib_cb_k.HasExceededTimelimit() << ")" << endl;
-            cout << "MQLIB(Gk-no_k_change): " << mqlib_cut_size_k + k_change << " " << mqlib_time_k << " (timelimit exceeded: " << mqlib_cb_k.HasExceededTimelimit() << ")" << endl;
+                    = ComputeAverageAndDeviation(res_mqlib, res_mqlib_k);
+
+            cout << "MQLIB(G):  " << mqlib_cut_size << " " << mqlib_time << " (timelimit exceeded: "
+                 << mqlib_cb.HasExceededTimelimit() << ")" << endl;
+            cout << "MQLIB(Gk): " << mqlib_cut_size_k << " " << mqlib_time_k << " (timelimit exceeded: "
+                 << mqlib_cb_k.HasExceededTimelimit() << ")" << endl;
+            cout << "MQLIB(Gk-no_k_change): " << mqlib_cut_size_k + k_change << " " << mqlib_time_k
+                 << " (timelimit exceeded: " << mqlib_cb_k.HasExceededTimelimit() << ")" << endl;
 
             if (input.cmdOptionExists("-no-biqmac")) {
                 biqmac_time = biqmac_time_k = total_time_seconds;
@@ -280,17 +307,19 @@ struct SolverEvaluation {
         }
 
         if (thread_localsolver && thread_localsolver_k) {
-            std::tie(localsolver_cut_size, localsolver_cut_size_k, localsolver_rate, localsolver_rate_sddiff, localsolver_cut_size_best)
+            std::tie(localsolver_cut_size, localsolver_cut_size_k, localsolver_rate, localsolver_rate_sddiff,
+                     localsolver_cut_size_best)
                     = ComputeAverageAndDeviation(res_localsolver, res_localsolver_k);
 
-    #ifdef LOCALSOLVER_EXISTS
+#ifdef LOCALSOLVER_EXISTS
             cout << "LOCALSOLVER(G):  " << localsolver_cut_size   << " " << localsolver_time << " (timelimit exceeded: " << localsolver_cb.HasExceededTimelimit() << ")" << endl;
             cout << "LOCALSOLVER(Gk): " << localsolver_cut_size_k << " " << localsolver_time_k << " (timelimit exceeded: " << localsolver_cb_k.HasExceededTimelimit() << ")" << endl;
             cout << "LOCALSOLVER(Gk-no_k_change): " << localsolver_cut_size_k + k_change << " " << localsolver_time_k << " (timelimit exceeded: " << localsolver_cb_k.HasExceededTimelimit() << ")" << endl;
-    #endif
+#endif
         }
 
-        MAXCUT_best_size = max(SolverEvaluation::local_search_cut_size_best, max(SolverEvaluation::mqlib_cut_size_best, SolverEvaluation::localsolver_cut_size_best));
+        MAXCUT_best_size = max(SolverEvaluation::local_search_cut_size_best,
+                               max(SolverEvaluation::mqlib_cut_size_best, SolverEvaluation::localsolver_cut_size_best));
         MAXCUT_best_size = max(MAXCUT_best_size, biqmac_cut_size);
         MAXCUT_best_size = max(MAXCUT_best_size, biqmac_cut_size_k);
         MAXCUT_best_size = max(MAXCUT_best_size, 0LL);
